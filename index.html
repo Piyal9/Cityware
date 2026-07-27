@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="description" content="City Ware® — Browse our full catalogue online.">
+<title>City Ware® | Catalogue</title>
+<link rel="icon" type="image/png" href="favicon.png">
+
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500;600&family=Cinzel:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* =====================================================
+   CITY WARE® — Catalogue Showcase
+   Header & footer styling matches the main City Ware site.
+   ===================================================== */
+
+/* ── TOKENS ────────────────────────────────────────── */
+:root{
+  --white:#FFFFFF; --ivory:#FAF8F4; --soft-grey:#F5F5F5;
+  --grey-100:#EDEDED; --grey-200:#D8D8D8;
+  --charcoal:#1A1A1A; --charcoal-60:rgba(26,26,26,.6); --charcoal-30:rgba(26,26,26,.3); --charcoal-10:rgba(26,26,26,.06);
+  --gold:#C8A96E; --gold-light:#E8D5A8; --gold-pale:#F5EDD8; --gold-deep:#A8854A;
+  --silver:#9EA8B0; --silver-light:#CDD4D9;
+  --font-display:'Cormorant Garamond',Georgia,serif;
+  --font-title:'Cinzel',serif;
+  --font-body:'Inter',system-ui,sans-serif;
+  --ease-out-expo:cubic-bezier(.16,1,.3,1);
+  --container:1200px; --header-h:72px; --radius:4px;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--ivory); color:var(--charcoal);
+  font-family:var(--font-body); font-size:16px; line-height:1.6;
+  overflow-x:hidden; -webkit-font-smoothing:antialiased;
+}
+img{display:block;max-width:100%;}
+a{color:inherit;text-decoration:none;}
+button{cursor:pointer;background:none;border:none;font:inherit;}
+ul{list-style:none;}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:2px;}
+.container{max-width:var(--container);margin:0 auto;padding:0 clamp(20px,5vw,60px);}
+
+/* ── BUTTONS ─────────────────────────────────────────── */
+.btn-primary{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:16px 40px;background:var(--charcoal);color:var(--white);
+  font-size:14px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;
+  border-radius:var(--radius);
+  transition:background .3s,transform .3s var(--ease-out-expo),box-shadow .3s;
+}
+.btn-primary:hover{background:var(--gold-deep);transform:translateY(-2px);box-shadow:0 8px 32px rgba(168,133,74,.25);}
+.btn-ghost{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:12px 26px;border:1px solid var(--charcoal-30);color:var(--charcoal);
+  font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;
+  border-radius:var(--radius);transition:border-color .3s,color .3s,transform .3s;
+}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold-deep);transform:translateY(-2px);}
+
+/* ── HEADER (same as main site) ─────────────────────── */
+#site-header{
+  position:fixed;top:0;left:0;right:0;height:var(--header-h);z-index:900;
+  background:rgba(255,255,255,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--grey-100);transition:box-shadow .4s;
+}
+#site-header.scrolled{box-shadow:0 4px 32px rgba(0,0,0,.06);}
+.nav-inner{
+  max-width:var(--container);margin:0 auto;padding:0 clamp(20px,5vw,60px);
+  height:100%;display:flex;align-items:center;justify-content:space-between;gap:32px;
+}
+.nav-logo{display:flex;align-items:baseline;gap:2px;}
+.logo-main{font-family:var(--font-title);font-size:20px;letter-spacing:.04em;color:var(--charcoal);}
+.logo-reg{font-family:var(--font-body);font-size:10px;color:var(--gold);vertical-align:super;}
+.nav-links{display:flex;gap:36px;}
+.nav-link{font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--charcoal-60);transition:color .2s;position:relative;}
+.nav-link::after{content:'';position:absolute;bottom:-3px;left:0;right:100%;height:1px;background:var(--gold);transition:right .3s var(--ease-out-expo);}
+.nav-link:hover{color:var(--charcoal);}
+.nav-link:hover::after{right:0;}
+.nav-right{display:flex;align-items:center;gap:20px;}
+.nav-cta{
+  padding:9px 22px;border:1px solid var(--gold);color:var(--gold-deep);
+  font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;
+  border-radius:var(--radius);transition:background .25s,color .25s;
+}
+.nav-cta:hover{background:var(--gold);color:var(--white);}
+.nav-hamburger{display:none;flex-direction:column;gap:5px;padding:4px;}
+.nav-hamburger span{display:block;width:22px;height:1.5px;background:var(--charcoal);transition:transform .3s;}
+.mobile-menu{
+  position:fixed;inset:0;background:var(--white);z-index:950;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;
+  transform:translateX(100%);transition:transform .5s var(--ease-out-expo);
+}
+.mobile-menu.open{transform:translateX(0);}
+.mobile-menu ul{display:flex;flex-direction:column;gap:24px;text-align:center;}
+.mobile-menu ul a{font-family:var(--font-display);font-size:32px;font-weight:300;color:var(--charcoal);transition:color .2s;}
+.mobile-menu ul a:hover{color:var(--gold-deep);}
+.mobile-menu-close{position:absolute;top:24px;right:28px;font-size:20px;color:var(--charcoal-60);transition:color .2s;}
+.mobile-menu-close:hover{color:var(--charcoal);}
+.mobile-tagline{font-family:var(--font-title);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);}
+
+/* ── PAGE HERO / INTRO ───────────────────────────────── */
+.doc-hero{
+  padding-top:calc(var(--header-h) + 64px); padding-bottom:48px;
+  text-align:center;
+}
+.doc-eyebrow{
+  display:block;font-family:var(--font-title);font-size:10px;letter-spacing:.25em;
+  text-transform:uppercase;color:var(--gold);margin-bottom:16px;
+}
+.doc-title{
+  font-family:var(--font-display);font-size:clamp(32px,5vw,56px);font-weight:300;line-height:1.15;color:var(--charcoal);
+}
+.doc-title em{font-style:italic;color:var(--gold-deep);}
+.doc-sub{
+  max-width:560px;margin:18px auto 0;color:var(--charcoal-60);font-size:15px;
+}
+
+/* ── PDF VIEWER SECTION ──────────────────────────────── */
+.section-viewer{padding:0 0 var(--section-pad,100px);}
+.pdf-shell{
+  max-width:900px;margin:0 auto;background:var(--white);
+  border:1px solid var(--grey-200);border-radius:var(--radius-lg,12px);
+  box-shadow:0 20px 60px rgba(26,26,26,.08);overflow:hidden;
+}
+.pdf-toolbar{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:16px 24px;border-bottom:1px solid var(--grey-100);background:var(--soft-grey);
+  flex-wrap:wrap;
+}
+.pdf-toolbar-info{font-size:13px;color:var(--charcoal-60);letter-spacing:.02em;}
+.pdf-toolbar-info strong{color:var(--charcoal);}
+.pdf-inspect-btn{
+  display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:500;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--gold-deep);
+  border:1px solid var(--gold);padding:8px 18px;border-radius:var(--radius);transition:background .25s,color .25s;
+}
+.pdf-inspect-btn:hover{background:var(--gold);color:var(--white);}
+.pdf-inspect-btn svg{width:14px;height:14px;}
+
+/* Fullscreen overlay mode (works consistently across desktop & mobile,
+   including iOS Safari where the native Fullscreen API is unavailable) */
+.pdf-shell.is-fullscreen{
+  position:fixed; inset:0; z-index:2000; max-width:none;
+  border:none; border-radius:0; box-shadow:none;
+  display:flex; flex-direction:column;
+  padding-top:env(safe-area-inset-top,0);
+  padding-bottom:env(safe-area-inset-bottom,0);
+}
+.pdf-shell.is-fullscreen .pdf-scroll{max-height:none; flex:1;}
+body.pdf-fullscreen-open{overflow:hidden;}
+.pdf-close-btn{
+  display:none; align-items:center; gap:6px;
+  font-size:12px; font-weight:500; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--charcoal); background:var(--white); border:1px solid var(--grey-200);
+  padding:8px 16px; border-radius:var(--radius); transition:border-color .2s,color .2s;
+}
+.pdf-close-btn:hover{border-color:var(--gold); color:var(--gold-deep);}
+.pdf-shell.is-fullscreen .pdf-close-btn{display:inline-flex;}
+.pdf-shell.is-fullscreen .pdf-inspect-btn{display:none;}
+
+.pdf-scroll{
+  height:80vh;
+  background:var(--grey-100);
+}
+.pdf-frame{
+  width:100%; height:100%; border:none; display:block; background:var(--grey-100);
+}
+.pdf-shell.is-fullscreen .pdf-frame{height:100%;}
+
+/* Mobile tap-through card (hidden on desktop, shown under 768px) */
+.pdf-mobile-card{
+  display:none; align-items:center; gap:16px;
+  max-width:560px; margin:0 auto; padding:22px 22px;
+  background:var(--white); border:1px solid var(--grey-200); border-radius:var(--radius-lg,12px);
+  box-shadow:0 12px 40px rgba(26,26,26,.08);
+  transition:border-color .25s, transform .2s, box-shadow .25s;
+}
+.pdf-mobile-card:active{transform:scale(0.98);}
+.pdf-mobile-icon{
+  flex-shrink:0; width:48px; height:48px; border-radius:10px;
+  background:var(--gold-pale); color:var(--gold-deep);
+  display:flex; align-items:center; justify-content:center;
+}
+.pdf-mobile-icon svg{width:24px; height:24px;}
+.pdf-mobile-text{display:flex; flex-direction:column; gap:3px; flex:1;}
+.pdf-mobile-text strong{font-size:15px; color:var(--charcoal); letter-spacing:.01em;}
+.pdf-mobile-text span{font-size:12.5px; color:var(--charcoal-60);}
+.pdf-mobile-arrow{font-size:18px; color:var(--gold-deep); flex-shrink:0;}
+
+/* ── CONTACT SECTION ─────────────────────────────────── */
+.section-contact-cta{
+  padding:80px 0 120px; text-align:center;
+}
+.contact-cta-inner{
+  max-width:560px; margin:0 auto; padding:56px clamp(24px,5vw,64px);
+  background:var(--white); border:1px solid var(--grey-200); border-radius:var(--radius-lg,12px);
+  box-shadow:0 20px 60px rgba(26,26,26,.06);
+}
+.contact-cta-inner h2{
+  font-family:var(--font-display); font-weight:300; font-size:clamp(28px,4vw,40px); color:var(--charcoal); margin-bottom:14px;
+}
+.contact-cta-inner h2 em{font-style:italic;color:var(--gold-deep);}
+.contact-cta-inner p{color:var(--charcoal-60); font-size:14.5px; margin-bottom:32px;}
+.mail-btn{
+  display:inline-flex; align-items:center; gap:12px;
+  padding:18px 44px; background:var(--charcoal); color:var(--white);
+  font-size:14px; font-weight:500; letter-spacing:.1em; text-transform:uppercase;
+  border-radius:var(--radius); transition:background .3s, transform .3s var(--ease-out-expo), box-shadow .3s;
+}
+.mail-btn:hover{background:var(--gold-deep); transform:translateY(-3px); box-shadow:0 10px 36px rgba(168,133,74,.3);}
+.mail-btn svg{width:18px; height:18px; flex-shrink:0;}
+.contact-email-plain{
+  display:block; margin-top:18px; font-size:12.5px; color:var(--charcoal-30); letter-spacing:.02em;
+}
+
+/* ── FOOTER (same as main site) ──────────────────────── */
+.site-footer{background:var(--charcoal); color:rgba(255,255,255,.6); padding:56px 0 32px;}
+.footer-top{
+  display:flex; justify-content:space-between; align-items:flex-start; gap:40px;
+  padding-bottom:32px; margin-bottom:32px; border-bottom:1px solid rgba(255,255,255,.08);
+  flex-wrap:wrap;
+}
+.footer-brand{display:flex; flex-direction:column; gap:14px;}
+.footer-logo{font-family:var(--font-title); font-size:22px; color:var(--white); letter-spacing:.04em;}
+.footer-logo sup{font-size:11px; color:var(--gold);}
+.footer-brand p{font-size:13px; line-height:1.8;}
+.footer-nav{display:flex; gap:28px; flex-wrap:wrap;}
+.footer-nav a{font-size:13px; color:rgba(255,255,255,.55); transition:color .2s;}
+.footer-nav a:hover{color:var(--white);}
+.footer-bottom{display:flex; justify-content:space-between; align-items:center; font-size:12px; flex-wrap:wrap; gap:10px;}
+.footer-bottom a{color:var(--gold-light); transition:color .2s; text-decoration:underline; text-underline-offset:3px;}
+.footer-bottom a:hover{color:var(--white);}
+.footer-made{color:rgba(255,255,255,.3); font-style:italic;}
+
+/* ── RESPONSIVE ──────────────────────────────────────── */
+@media (max-width:860px){
+  .nav-links{display:none;}
+  .nav-hamburger{display:flex;}
+  .nav-cta{display:none;}
+}
+
+/* Below 768px: swap the embedded iframe preview for the tap-through mobile card.
+   Embedded PDFs in an iframe are unreliable on phones (iOS Safari in particular),
+   so phones get the device's own native PDF viewer instead — smoother & more reliable. */
+@media (max-width:768px){
+  .pdf-shell{display:none;}
+  .pdf-mobile-card{display:flex;}
+}
+@media (min-width:769px){
+  .pdf-mobile-card{display:none;}
+}
+
+@media (max-width:640px){
+  .doc-hero{padding-top:calc(var(--header-h) + 40px); padding-bottom:32px;}
+  .contact-cta-inner{padding:40px 22px;}
+  .mail-btn{width:100%; justify-content:center; padding:16px 20px;}
+  .footer-top{flex-direction:column;}
+  .footer-bottom{flex-direction:column; align-items:flex-start;}
+}
+@media (max-width:420px){
+  .pdf-mobile-card{padding:18px;}
+  .pdf-mobile-text strong{font-size:14px;}
+}
+
+/* General touch/mobile smoothness */
+a, button{-webkit-tap-highlight-color:transparent; touch-action:manipulation;}
+@supports (height:100dvh){
+  .pdf-shell.is-fullscreen{height:100dvh;}
+}
+/* When the viewer is open full screen, let it use every pixel regardless of breakpoint */
+.pdf-shell.is-fullscreen .pdf-toolbar{padding:14px 16px;}
+.pdf-shell.is-fullscreen .pdf-pages{padding:16px 10px 40px;}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     NAVIGATION (unchanged from main site)
+═══════════════════════════════════════════ -->
+<header id="site-header">
+  <nav class="nav-inner">
+    <a href="#top" class="nav-logo">
+      <span class="logo-main">City Ware</span><sup class="logo-reg">®</sup>
+    </a>
+
+    <ul class="nav-links" id="nav-links">
+      <li><a href="#top" class="nav-link">Home</a></li>
+      <li><a href="#viewer" class="nav-link">Catalogue</a></li>
+      <li><a href="#contact" class="nav-link">Contact</a></li>
+    </ul>
+
+    <div class="nav-right">
+      <a href="#contact" class="nav-cta">Get in Touch</a>
+      <button class="nav-hamburger" id="nav-hamburger" aria-label="Open menu">
+        <span></span><span></span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobile-menu" aria-hidden="true">
+  <button class="mobile-menu-close" id="mobile-close" aria-label="Close menu">✕</button>
+  <ul>
+    <li><a href="#top" data-close>Home</a></li>
+    <li><a href="#viewer" data-close>Catalogue</a></li>
+    <li><a href="#contact" data-close>Contact</a></li>
+  </ul>
+  <p class="mobile-tagline">Long Lasting. Ever Green.</p>
+</div>
+
+<div id="top"></div>
+
+<!-- ═══════════════════════════════════════════
+     PAGE INTRO
+═══════════════════════════════════════════ -->
+<section class="doc-hero">
+  <div class="container">
+    <span class="doc-eyebrow">2026 – 2027 Catalogue</span>
+    <h1 class="doc-title">Browse Our Full <em>Catalogue</em></h1>
+    <p class="doc-sub">Browse the complete collection below. Reach out any time and we'll help you find exactly what you need.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PDF VIEWER
+═══════════════════════════════════════════ -->
+<section id="viewer" class="section-viewer">
+  <div class="container">
+
+    <!-- Desktop / larger screens: inline scrollable preview -->
+    <div class="pdf-shell" id="pdf-shell">
+
+      <div class="pdf-toolbar">
+        <span class="pdf-toolbar-info">Full Catalogue</span>
+        <button class="pdf-inspect-btn" id="pdf-inspect-btn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 3H4v5M15 3h5v5M9 21H4v-5M15 21h5v-5"/></svg>
+          Inspect
+        </button>
+        <button class="pdf-close-btn" id="pdf-close-btn" type="button">
+          ✕ Close
+        </button>
+      </div>
+
+      <div class="pdf-scroll" id="pdf-scroll">
+        <!-- Just drop your PDF in the same folder as index.html, same as you would an image or video,
+             and point src at its filename. -->
+        <iframe class="pdf-frame" id="pdf-frame" src="cityware.pdf" title="City Ware Catalogue"></iframe>
+      </div>
+
+    </div>
+
+    <!-- Mobile / touch screens: tap-through card that opens the PDF in the phone's own
+         viewer (Quick Look on iOS, Chrome's PDF viewer on Android). This is far smoother
+         and more reliable on phones than an embedded iframe. -->
+    <a class="pdf-mobile-card" href="cityware.pdf" target="_blank" rel="noopener noreferrer">
+      <span class="pdf-mobile-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2h9l5 5v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1Z"/><path d="M15 2v5h5"/><path d="M8.5 13h7M8.5 16.5h7M8.5 9.5h3"/></svg>
+      </span>
+      <span class="pdf-mobile-text">
+        <strong>View Full Catalogue</strong>
+        <span>Tap to open — swipe through every page</span>
+      </span>
+      <span class="pdf-mobile-arrow">→</span>
+    </a>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     CONTACT
+═══════════════════════════════════════════ -->
+<section id="contact" class="section-contact-cta">
+  <div class="container">
+    <div class="contact-cta-inner">
+      <h2>Have a <em>Question?</em></h2>
+      <p>Send us a message and our team will get back to you shortly.</p>
+      <a class="mail-btn" href="https://mail.google.com/mail/?view=cm&fs=1&to=yesbathware@gmail.com&su=Catalogue%20Enquiry" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6.5h18v11a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5v-11Z"/><path d="M3 6.5l9 7 9-7"/></svg>
+        Contact Us
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER (unchanged style from main site)
+═══════════════════════════════════════════ -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <span class="footer-logo">City Ware<sup>®</sup></span>
+        <p>Long Lasting. Ever Green.<br>100% Stainless Steel · 2026–2027</p>
+      </div>
+      <nav class="footer-nav">
+        <a href="#top">Home</a>
+        <a href="#viewer">Catalogue</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+    <div class="footer-bottom">
+      <!-- Replace href="#" below with the actual destination URL for the name link -->
+      <p>© 2026 <a href="#">Piyal tambuli</a>. All rights reserved.</p>
+      <p class="footer-made">Piyal Technologies</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+'use strict';
+
+/* ── HEADER SCROLL BEHAVIOUR ─────────────────────────── */
+(function () {
+  const hdr = document.getElementById('site-header');
+  window.addEventListener('scroll', () => {
+    hdr.classList.toggle('scrolled', window.scrollY > 40);
+  }, { passive: true });
+})();
+
+/* ── MOBILE MENU ─────────────────────────────────────── */
+(function () {
+  const btn   = document.getElementById('nav-hamburger');
+  const close = document.getElementById('mobile-close');
+  const menu  = document.getElementById('mobile-menu');
+  if (!menu) return;
+
+  const openMenu  = () => { menu.classList.add('open'); menu.removeAttribute('aria-hidden'); document.body.style.overflow = 'hidden'; };
+  const closeMenu = () => { menu.classList.remove('open'); menu.setAttribute('aria-hidden', 'true'); document.body.style.overflow = ''; };
+
+  btn.addEventListener('click', openMenu);
+  close.addEventListener('click', closeMenu);
+  document.querySelectorAll('[data-close]').forEach(el => el.addEventListener('click', closeMenu));
+})();
+
+/* ── PDF VIEWER (plain iframe embed) ──
+   The PDF is embedded directly via <iframe src="cityware.pdf">.
+   Just place "cityware.pdf" in the same folder as this index.html —
+   exactly like you would an image or video file — and it will show up.
+------------------------------------------------------------- */
+(function () {
+  const pdfShell   = document.getElementById('pdf-shell');
+  const inspectBtn = document.getElementById('pdf-inspect-btn');
+  const closeBtn   = document.getElementById('pdf-close-btn');
+
+  /* ── Inspect / full-screen toggle ─────────────────── */
+  function openFullscreen() {
+    pdfShell.classList.add('is-fullscreen');
+    document.body.classList.add('pdf-fullscreen-open');
+  }
+  function closeFullscreen() {
+    pdfShell.classList.remove('is-fullscreen');
+    document.body.classList.remove('pdf-fullscreen-open');
+  }
+  inspectBtn.addEventListener('click', openFullscreen);
+  closeBtn.addEventListener('click', closeFullscreen);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && pdfShell.classList.contains('is-fullscreen')) closeFullscreen();
+  });
+})();
+</script>
+
+</body>
+</html>
