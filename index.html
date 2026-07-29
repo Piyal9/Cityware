@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="description" content="City Ware® — Browse our full catalogue online.">
-<title>City Ware® | Official Website</title>
+<title>CityWare® | Official Website</title>
 <link rel="icon" type="image/png" href="cityware.png">
 
 <!-- Google Fonts -->
@@ -187,11 +187,24 @@ body.cat-lightbox-open{overflow:hidden;}
   position:relative; max-width:min(920px,94vw); max-height:92vh;
   display:flex; flex-direction:column; align-items:center; gap:14px;
 }
-.cat-lightbox-img{
-  max-width:100%; max-height:80vh; border-radius:6px;
-  box-shadow:0 30px 80px rgba(0,0,0,.5); background:var(--grey-100);
-  display:block;
+.cat-lightbox-imgwrap{
+  position:relative; overflow:hidden; max-width:100%; max-height:80vh;
+  border-radius:6px; box-shadow:0 30px 80px rgba(0,0,0,.5); background:var(--grey-100);
+  display:flex; align-items:center; justify-content:center;
+  touch-action:none;
 }
+.cat-lightbox-img{
+  max-width:100%; max-height:80vh;
+  display:block; user-select:none; -webkit-user-drag:none;
+  cursor:zoom-in;
+  transform-origin:0 0;
+  transition:transform .25s ease;
+}
+.cat-lightbox-imgwrap.zoomed .cat-lightbox-img{
+  cursor:grab; transition:none;
+}
+.cat-lightbox-imgwrap.panning .cat-lightbox-img{cursor:grabbing;}
+.cat-lightbox-hint{color:rgba(255,255,255,.45); font-size:11.5px; letter-spacing:.03em; text-align:center; margin-top:-4px;}
 .cat-lightbox-caption{color:rgba(255,255,255,.75); font-size:13px; letter-spacing:.04em; text-align:center;}
 .cat-lightbox-caption strong{color:var(--gold-light); font-weight:500;}
 .cat-lightbox-close{
@@ -365,11 +378,14 @@ a, button{-webkit-tap-highlight-color:transparent; touch-action:manipulation;}
     <button class="cat-lightbox-nav cat-lightbox-prev" id="cat-lightbox-prev" type="button" aria-label="Previous page">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
     </button>
-    <img class="cat-lightbox-img" id="cat-lightbox-img" src="" alt="">
+    <div class="cat-lightbox-imgwrap" id="cat-lightbox-imgwrap">
+      <img class="cat-lightbox-img" id="cat-lightbox-img" src="" alt="">
+    </div>
     <button class="cat-lightbox-nav cat-lightbox-next" id="cat-lightbox-next" type="button" aria-label="Next page">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
     </button>
     <p class="cat-lightbox-caption" id="cat-lightbox-caption"></p>
+    <p class="cat-lightbox-hint">Click or scroll to zoom · drag to pan</p>
   </div>
 </div>
 
@@ -401,7 +417,6 @@ a, button{-webkit-tap-highlight-color:transparent; touch-action:manipulation;}
     </div>
     <div class="footer-bottom">
       <p>© 2026 <a href="https://piyal9.github.io/Piyal_Web/">Piyal Technologies</a>. All rights reserved.</p>
-      <p class="footer-made">Developer -- PIYAL TAMBULI</p>
     </div>
   </div>
 </footer>
@@ -431,24 +446,137 @@ a, button{-webkit-tap-highlight-color:transparent; touch-action:manipulation;}
 })();
 
 (function () {
-  const grid    = document.getElementById('cat-grid');
-  const cards   = Array.from(document.querySelectorAll('.cat-page'));
-  const lb      = document.getElementById('cat-lightbox');
-  const lbImg   = document.getElementById('cat-lightbox-img');
-  const lbCap   = document.getElementById('cat-lightbox-caption');
-  const closeBtn= document.getElementById('cat-lightbox-close');
-  const prevBtn = document.getElementById('cat-lightbox-prev');
-  const nextBtn = document.getElementById('cat-lightbox-next');
+  const grid     = document.getElementById('cat-grid');
+  const cards    = Array.from(document.querySelectorAll('.cat-page'));
+  const lb       = document.getElementById('cat-lightbox');
+  const lbWrap   = document.getElementById('cat-lightbox-imgwrap');
+  const lbImg    = document.getElementById('cat-lightbox-img');
+  const lbCap    = document.getElementById('cat-lightbox-caption');
+  const closeBtn = document.getElementById('cat-lightbox-close');
+  const prevBtn  = document.getElementById('cat-lightbox-prev');
+  const nextBtn  = document.getElementById('cat-lightbox-next');
   if (!grid || !cards.length) return;
 
   let current = 0;
 
+  /* ── Zoom / pan state ─────────────────────────────── */
+  const MIN_SCALE = 1, MAX_SCALE = 4, CLICK_ZOOM = 2.4;
+  let scale = 1, tx = 0, ty = 0;
+  let isPanning = false, panMoved = false, startX = 0, startY = 0, startTx = 0, startTy = 0;
+  const pointers = new Map();       // active pointers, for pinch
+  let pinchStartDist = 0, pinchStartScale = 1;
+
+  function applyTransform() {
+    lbImg.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+    lbWrap.classList.toggle('zoomed', scale > 1.001);
+  }
+
+  function clampPan() {
+    // keep the image reasonably within view while zoomed
+    const wrapRect = lbWrap.getBoundingClientRect();
+    const maxX = wrapRect.width  * (scale - 1) / 2 + wrapRect.width  * 0.15;
+    const maxY = wrapRect.height * (scale - 1) / 2 + wrapRect.height * 0.15;
+    tx = Math.max(-maxX, Math.min(maxX, tx));
+    ty = Math.max(-maxY, Math.min(maxY, ty));
+  }
+
+  function resetZoom() {
+    scale = 1; tx = 0; ty = 0;
+    applyTransform();
+  }
+
+  function zoomAt(clientX, clientY, newScale) {
+    newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, newScale));
+    const rect = lbWrap.getBoundingClientRect();
+    const originX = clientX - rect.left - rect.width  / 2;
+    const originY = clientY - rect.top  - rect.height / 2;
+    const ratio = newScale / scale;
+    tx = originX - (originX - tx) * ratio;
+    ty = originY - (originY - ty) * ratio;
+    scale = newScale;
+    clampPan();
+    applyTransform();
+  }
+
+  /* Click / tap toggles zoom in ↔ out, centred on the click point */
+  lbWrap.addEventListener('click', (e) => {
+    if (panMoved) { panMoved = false; return; } // ignore click that ends a drag
+    if (scale > 1.001) {
+      resetZoom();
+    } else {
+      zoomAt(e.clientX, e.clientY, CLICK_ZOOM);
+    }
+  });
+
+  /* Mouse wheel zoom (desktop) */
+  lbWrap.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const delta = e.deltaY < 0 ? 0.35 : -0.35;
+    zoomAt(e.clientX, e.clientY, scale + delta);
+  }, { passive: false });
+
+  /* Pointer-based drag-to-pan (mouse + single touch) and pinch-to-zoom (two touches) */
+  lbWrap.addEventListener('pointerdown', (e) => {
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    lbWrap.setPointerCapture(e.pointerId);
+    if (pointers.size === 1 && scale > 1.001) {
+      isPanning = true; panMoved = false;
+      startX = e.clientX; startY = e.clientY;
+      startTx = tx; startTy = ty;
+      lbWrap.classList.add('panning');
+    } else if (pointers.size === 2) {
+      isPanning = false;
+      const pts = Array.from(pointers.values());
+      pinchStartDist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+      pinchStartScale = scale;
+    }
+  });
+
+  lbWrap.addEventListener('pointermove', (e) => {
+    if (!pointers.has(e.pointerId)) return;
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (pointers.size === 2) {
+      const pts = Array.from(pointers.values());
+      const dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+      const midX = (pts[0].x + pts[1].x) / 2;
+      const midY = (pts[0].y + pts[1].y) / 2;
+      if (pinchStartDist > 0) {
+        const newScale = pinchStartScale * (dist / pinchStartDist);
+        zoomAt(midX, midY, newScale);
+      }
+      return;
+    }
+
+    if (isPanning) {
+      const dx = e.clientX - startX, dy = e.clientY - startY;
+      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) panMoved = true;
+      tx = startTx + dx; ty = startTy + dy;
+      clampPan();
+      applyTransform();
+    }
+  });
+
+  function endPointer(e) {
+    pointers.delete(e.pointerId);
+    if (pointers.size < 2) pinchStartDist = 0;
+    if (pointers.size === 0) {
+      isPanning = false;
+      lbWrap.classList.remove('panning');
+    }
+  }
+  lbWrap.addEventListener('pointerup', endPointer);
+  lbWrap.addEventListener('pointercancel', endPointer);
+  lbWrap.addEventListener('pointerleave', endPointer);
+
+  /* ── Slide navigation ─────────────────────────────── */
   function show(index) {
     current = (index + cards.length) % cards.length;
-    const card = cards[current];
-    const img  = card.querySelector('img');
-    const num  = card.querySelector('.cat-page-num').textContent;
-    const title= card.querySelector('.cat-page-title').textContent;
+    const card  = cards[current];
+    const img   = card.querySelector('img');
+    const num   = card.querySelector('.cat-page-num').textContent;
+    const title = card.querySelector('.cat-page-title').textContent;
+    resetZoom();
     lbImg.src = img.src;
     lbImg.alt = img.alt;
     lbCap.innerHTML = `<strong>${num}</strong> — ${title}`;
@@ -461,6 +589,7 @@ a, button{-webkit-tap-highlight-color:transparent; touch-action:manipulation;}
     document.body.classList.add('cat-lightbox-open');
   }
   function close() {
+    resetZoom();
     lb.classList.remove('open');
     lb.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('cat-lightbox-open');
@@ -483,8 +612,10 @@ a, button{-webkit-tap-highlight-color:transparent; touch-action:manipulation;}
   document.addEventListener('keydown', (e) => {
     if (!lb.classList.contains('open')) return;
     if (e.key === 'Escape') close();
-    if (e.key === 'ArrowLeft') show(current - 1);
-    if (e.key === 'ArrowRight') show(current + 1);
+    if (e.key === 'ArrowLeft' && scale <= 1.001) show(current - 1);
+    if (e.key === 'ArrowRight' && scale <= 1.001) show(current + 1);
+    if (e.key === '+' || e.key === '=') zoomAt(window.innerWidth / 2, window.innerHeight / 2, scale + 0.5);
+    if (e.key === '-') zoomAt(window.innerWidth / 2, window.innerHeight / 2, scale - 0.5);
   });
 })();
 </script>
